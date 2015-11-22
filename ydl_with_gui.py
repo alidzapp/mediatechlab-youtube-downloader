@@ -3,11 +3,14 @@
 from tkinter import *
 from tkinter import ttk
 # to show the video pic
-from urllib.request import urlopen
-from PIL import Image, ImageTk
 import io
+from PIL import Image, ImageTk
+from urllib.request import urlopen
 # to download from youtube
 import pafy
+# to file browse
+import os
+from tkinter import filedialog
 
 
 #----------------------------------------------------------------------------------------
@@ -73,6 +76,12 @@ def check(*args):
         print(e)
 
 #----------------------------------------------------------------------------------------
+def browse(*args):
+    bottom_path = filedialog.askdirectory()
+    bottom_plabel   = ttk.Label(bottom, text=bottom_path)
+    bottom_plabel.grid(  column=0, row=1, sticky=W)
+
+#----------------------------------------------------------------------------------------
 def download(*args):
     try:
         print("Download command")
@@ -106,7 +115,7 @@ top_entry = ttk.Entry(top,  textvariable=url, width=43)
 top_check = ttk.Button(top, text="Check", command=check)
 top_text.grid( column=0, row=0, sticky=W)
 top_entry.grid(column=0, row=1, sticky=W)
-top_check.grid(column=1, row=1, sticky=W, padx=15)
+top_check.grid(column=1, row=1, sticky=E, padx=15)
 
 #----------------------------------------------------------------------------------------
 # LEFT
@@ -133,14 +142,16 @@ right_acombo.grid(  column=0, row=5, sticky=W, pady=15)
 #----------------------------------------------------------------------------------------
 # BOTTOM
 #----------------------------------------------------------------------------------------
-bottom_path     = "C:\dummy\demo"
-bottom_text     = ttk.Label(bottom, text="SAVE TO:")
-bottom_plabel   = ttk.Label(bottom, text=bottom_path)
+bottom_path = os.path.dirname(os.path.realpath(__file__))
+bottom_text     = ttk.Label( bottom, text="SAVE TO:")
+bottom_plabel   = ttk.Label( bottom, text=bottom_path)
 bottom_download = ttk.Button(bottom, text="Download", command=download)
+bottom_browse   = ttk.Button(bottom, text="Browse",   command=browse)
 bottom_progress = ttk.Progressbar(bottom, orient=HORIZONTAL, length=350, mode='determinate')
 bottom_text.grid(    column=0, row=0, sticky=W)
 bottom_plabel.grid(  column=0, row=1, sticky=W)
-bottom_download.grid(column=2, row=3, sticky=E, padx=15)
+bottom_browse.grid(  column=2, row=1, sticky=W, padx=15)
+bottom_download.grid(column=2, row=3, sticky=W, padx=15)
 bottom_progress.grid(column=0, row=3, columnspan=2, pady=15)
 
 #----------------------------------------------------------------------------------------
