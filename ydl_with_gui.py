@@ -11,8 +11,11 @@ import pafy
 # to file browse
 import os
 from tkinter import filedialog
+# to progressbar
+import threading
 
-
+#----------------------------------------------------------------------------------------
+# CHECK BUTTON
 #----------------------------------------------------------------------------------------
 def url_validation(url):
     youtube_regex = (
@@ -27,6 +30,11 @@ def url_validation(url):
     raise Exception("URL validation failed!!!")
 
 def check():
+    t = threading.Thread(target=check_thread)
+    t.daemon = True
+    t.start()
+
+def check_thread():
     try:
         #--------------------------------------------------------------------------------
         # show thumbnail
@@ -66,7 +74,7 @@ def check():
             right_vcombo = ttk.Combobox(right, values=right_vformats)
             right_vcombo.current(0)
             right_vcombo.grid(column=0, row=3, sticky=W, pady=15)
-
+            
             right_aformats = ["-"]
             for s in video.audiostreams:
                 right_aformats.append(str(s))
@@ -85,12 +93,21 @@ def check():
         print(e)
 
 #----------------------------------------------------------------------------------------
+# BROWSE BUTTON
+#----------------------------------------------------------------------------------------
 def browse():
     bottom_pentry.delete(0, END)
     bottom_pentry.insert(0, filedialog.askdirectory())
 
 #----------------------------------------------------------------------------------------
+# DOWNLOAD BUTTON
+#----------------------------------------------------------------------------------------
 def download():
+    t = threading.Thread(target=download_thread)
+    t.daemon = True
+    t.start()
+
+def download_thread():
     try:
         global video
         global bottom_pentry
@@ -98,23 +115,32 @@ def download():
         streamlist = []
         for s in streams:
             streamlist.append(str(s))
+        #--------------------------------------------------------------------------------
         # download video
+        #--------------------------------------------------------------------------------
         try:
             stream_num = streamlist.index(str(right_vcombo.get()))
-            streams[stream_num].download(filepath = bottom_pentry.get())
+            streams[stream_num].download(filepath=bottom_pentry.get(), quiet=True, callback=progress)
         except:
             pass
-        # download audio
+        #--------------------------------------------------------------------------------
+        # download video
+        #--------------------------------------------------------------------------------
         try:
             stream_num = streamlist.index(str(right_acombo.get()))
-            streams[stream_num].download(filepath = bottom_pentry.get())
+            streams[stream_num].download(filepath=bottom_pentry.get(), quiet=True, callback=progress)
         except:
             pass
 
     except Exception as e:
         print("Error in download!!!")
         print(e)
-    
+
+def progress(total, received, ratio, rate, eta):
+    global bottom_progress
+    bottom_progress["maximum"] = total
+    bottom_progress["value"]   = received
+
 #----------------------------------------------------------------------------------------
 # FRAMES
 #----------------------------------------------------------------------------------------
