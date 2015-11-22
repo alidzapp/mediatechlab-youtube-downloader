@@ -26,7 +26,7 @@ def url_validation(url):
 
     raise Exception("URL validation failed!!!")
 
-def check(*args):
+def check():
     try:
         #--------------------------------------------------------------------------------
         # show thumbnail
@@ -50,22 +50,31 @@ def check(*args):
         # change title + durration + streams
         #--------------------------------------------------------------------------------
         try:
+            global video
+            global right_vcombo
+            global right_acombo
             video = pafy.new(url.get())
             title = video.title
-            right_name = ttk.Label(right, text=title[:35])            
-            right_name.grid(column=0, row=0, sticky=W)
+            right_name     = ttk.Label(right, text=title[:35])            
             right_duration = ttk.Label(right, text=video.duration)            
+            right_name.grid(    column=0, row=0, sticky=W)
             right_duration.grid(column=0, row=1, sticky=W)
 
-            right_vformats = video.streams
+            right_vformats = ["-"]
+            for s in video.streams:
+                right_vformats.append(str(s))
             right_vcombo = ttk.Combobox(right, values=right_vformats)
+            right_vcombo.current(0)
             right_vcombo.grid(column=0, row=3, sticky=W, pady=15)
 
-            right_aformats = video.audiostreams
+            right_aformats = ["-"]
+            for s in video.audiostreams:
+                right_aformats.append(str(s))
             right_acombo = ttk.Combobox(right, values=right_aformats)
+            right_acombo.current(0)
             right_acombo.grid(column=0, row=5, sticky=W, pady=15)
         except Exception as e:
-            print("change title + durration + streams")
+            print("Error in change title + durration + streams")
             print(e)
 
         #--------------------------------------------------------------------------------
@@ -76,24 +85,41 @@ def check(*args):
         print(e)
 
 #----------------------------------------------------------------------------------------
-def browse(*args):
-    bottom_path = filedialog.askdirectory()
-    bottom_plabel   = ttk.Label(bottom, text=bottom_path)
-    bottom_plabel.grid(  column=0, row=1, sticky=W)
+def browse():
+    bottom_pentry.delete(0, END)
+    bottom_pentry.insert(0, filedialog.askdirectory())
 
 #----------------------------------------------------------------------------------------
-def download(*args):
+def download():
     try:
-        print("Download command")
-    except ValueError:
-        pass
+        global video
+        global bottom_pentry
+        streams = video.allstreams
+        streamlist = []
+        for s in streams:
+            streamlist.append(str(s))
+        # download video
+        try:
+            stream_num = streamlist.index(str(right_vcombo.get()))
+            streams[stream_num].download(filepath = bottom_pentry.get())
+        except:
+            pass
+        # download audio
+        try:
+            stream_num = streamlist.index(str(right_acombo.get()))
+            streams[stream_num].download(filepath = bottom_pentry.get())
+        except:
+            pass
 
-root = Tk()
-root.title("YouTube Downloader")
-
+    except Exception as e:
+        print("Error in download!!!")
+        print(e)
+    
 #----------------------------------------------------------------------------------------
 # FRAMES
 #----------------------------------------------------------------------------------------
+root = Tk()
+root.title("YouTube Downloader")
 mainframe = ttk.Frame(root, padding="20 20 20 20")
 top    = ttk.Frame(mainframe, borderwidth=5)
 left   = ttk.Frame(mainframe, borderwidth=5)
@@ -104,6 +130,8 @@ top.grid(      column=0, row=0, sticky=(W,N), columnspan=2)
 left.grid(     column=0, row=1, sticky=W)
 right.grid(    column=1, row=1, sticky=E)
 bottom.grid(   column=0, row=2, sticky=(W,S), columnspan=2)
+# ugly solution
+video = None
 
 #----------------------------------------------------------------------------------------
 # TOP
@@ -142,17 +170,18 @@ right_acombo.grid(  column=0, row=5, sticky=W, pady=15)
 #----------------------------------------------------------------------------------------
 # BOTTOM
 #----------------------------------------------------------------------------------------
-bottom_path = os.path.dirname(os.path.realpath(__file__))
 bottom_text     = ttk.Label( bottom, text="SAVE TO:")
-bottom_plabel   = ttk.Label( bottom, text=bottom_path)
+bottom_pentry   = ttk.Entry( bottom, width=43)
 bottom_download = ttk.Button(bottom, text="Download", command=download)
 bottom_browse   = ttk.Button(bottom, text="Browse",   command=browse)
 bottom_progress = ttk.Progressbar(bottom, orient=HORIZONTAL, length=350, mode='determinate')
 bottom_text.grid(    column=0, row=0, sticky=W)
-bottom_plabel.grid(  column=0, row=1, sticky=W)
+bottom_pentry.grid(  column=0, row=1, sticky=W)
 bottom_browse.grid(  column=2, row=1, sticky=W, padx=15)
 bottom_download.grid(column=2, row=3, sticky=W, padx=15)
 bottom_progress.grid(column=0, row=3, columnspan=2, pady=15)
+# set current directory to save path
+bottom_pentry.insert(0, os.path.dirname(os.path.realpath(__file__)))
 
 #----------------------------------------------------------------------------------------
 # draw gui
