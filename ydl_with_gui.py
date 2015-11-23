@@ -63,7 +63,7 @@ def check_thread():
             global right_acombo
             video = pafy.new(url.get())
             title = video.title
-            right_name     = ttk.Label(right, text=title[:35])            
+            right_name     = ttk.Label(right, text=title[:30])            
             right_duration = ttk.Label(right, text=video.duration)            
             right_name.grid(    column=0, row=0, sticky=W)
             right_duration.grid(column=0, row=1, sticky=W)
@@ -180,12 +180,12 @@ dummy_pic.grid(column=0, row=0, sticky=W)
 #----------------------------------------------------------------------------------------
 # RIGHT
 #----------------------------------------------------------------------------------------
-right_title    = ttk.Label(right, text="")
-right_duration = ttk.Label(right, text="")
+right_duration = ttk.Label(right, text="\t\t\t\t")
+right_title    = ttk.Label(right, text="\t\t\t\t")
 right_video  = ttk.Label(right, text="VIDEO format")
-right_vcombo = ttk.Combobox(right, textvariable="")
+right_vcombo = ttk.Combobox(right, textvariable="-")
 right_audio  = ttk.Label(right, text="AUDIO format")
-right_acombo = ttk.Combobox(right, textvariable="")
+right_acombo = ttk.Combobox(right, textvariable="-")
 right_title.grid(   column=0, row=0, sticky=W)
 right_duration.grid(column=0, row=1, sticky=W)
 right_video.grid(   column=0, row=2, sticky=W, pady=10)
